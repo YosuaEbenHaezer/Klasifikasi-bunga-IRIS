@@ -1,0 +1,126 @@
+---
+title: "iris"
+author: "Yosua"
+date: "2023-12-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+trainData <- read.csv("C:\\Users\\user\\Downloads\\datairis.csv")
+str(trainData)
+trainData
+```
+```{r}
+trainData$Species <- factor(trainData$Species)
+str(trainData)
+```
+```{r}
+testData <- read.csv("D:\\Kuliah\\SMSTR 5\\PenambanganData\\datairisTesting.csv")
+str(testData)
+testData
+```
+```{r}
+testData$Species <- factor(testData$Species)
+str(testData)
+```
+```{r}
+library(party)
+```
+```{r}
+formula <- Species~SepalLength+SepalWidth+PetalLength+PetalWidth
+fit <- ctree(formula,data=trainData,controls=ctree_control(minsplit=2))
+fit
+```
+```{r}
+plot(fit)
+```
+```{r}
+table(predict(fit), trainData$Species)
+```
+```{r}
+library(rpart)
+library(rpart.plot)
+```
+```{r}
+fit <- rpart(Species~.,data=trainData,method="class")
+fit
+```
+```{r}
+## tuning:
+fit <- rpart(Species~.,data=trainData,method="class",control=rpart.control(minsplit=2))
+fit
+```
+```{r}
+library(rpart.plot)
+rpart.plot(fit,extra=106)
+```
+```{r}
+## Menggambarkan plot dengan plot()
+plot(fit,margin=0.2)
+text(fit, use.n=TRUE,pretty=TRUE,cex=0.8)
+```
+```{r}
+library(rattle)
+```
+```{r}
+fancyRpartPlot(fit)
+```
+```{r}
+library(caret)
+```
+```{r}
+testData$Species <- factor(testData$Species)
+prediksi <- predict(fit,newdata=testData,type="class")
+prediksi
+```
+```{r}
+table_mat <- table(testData$Species,prediksi)
+table_mat
+```
+```{r}
+library(caret)
+akurasi <- sum(diag(table_mat))/sum(table_mat)
+print(paste("Hasil akurasinya adalah  : ", akurasi))
+```
+```{r}
+ confusionMatrix(table(testData$Species,prediksi))
+```
+##tuning parameter
+```{r}
+ print(fit$cptable)
+```
+```{r}
+ control <- ctree_control(minsplit=1,minbucket=round(4/3),maxdept=3)
+    tune_fit <- ctree(Species~.,data=trainData,controls=control)
+    tune_fit
+```
+```{r}
+ prediksi <- predict(tune_fit,newdata=testData)
+    prediksi
+```
+```{r}
+confusionMatrix(table(testData$Species,prediksi))
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

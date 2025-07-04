@@ -1,0 +1,106 @@
+---
+title: "DecisionTreeWithC48 fungsi J48"
+author: "Yosua"
+date: "2023-12-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+trainData <- read.csv("C:\\Users\\user\\Downloads\\datairis.csv")
+trainData
+```
+```{r}
+trainData$Species <- factor(trainData$Species)
+str(trainData)
+```
+```{r}
+testData <- read.csv("D:\\Kuliah\\SMSTR 5\\PenambanganData\\datairisTesting.csv")
+str(testData)
+testData
+```
+```{r}
+testData$Species <- factor(testData$Species)
+str(testData)
+```
+```{r}
+Sys.setenv('JAVA_HOME'="C:/Program Files/Java/jdk-12.0.2/")
+library(RWeka)
+```
+```{r}
+library(rJava)
+```
+```{r}
+trainData$Species <- factor(trainData$Species)
+str(trainData)
+```
+```{r}
+formula <- Species~SepalLength+SepalWidth+PetalLength+PetalWidth
+fit <- J48(formula,data=trainData)
+fit
+```
+```{r}
+summary(fit)
+```
+```{r}
+## menggambarkan plot
+plot(fit)
+```
+```{r}
+if(require("partykit", quietly = TRUE)) plot(fit)
+```
+```{r}
+table(predict(fit), trainData$Species)
+```
+```{r}
+prediksi <- predict(fit,newdata=testData,type="class")
+prediksi
+```
+```{r}
+table_mat <- table(testData$Species,prediksi)
+table_mat
+```
+```{r}
+library(caret)
+```
+```{r}
+confusionMatrix(table(testData$Species,prediksi))
+```
+##Tuning Parameter
+```{r}
+control <- Weka_control(R=TRUE,M=2)
+    tune_fit <- J48(Species~.,data=trainData,control=Weka_control(R=FALSE,M=3))
+    tune_fit
+```
+```{r}
+ plot(tune_fit)
+```
+```{r}
+ prediksifit <- predict(tune_fit,newdata=testData)
+    prediksifit
+```
+```{r}
+ confusionMatrix(table(testData$Species,prediksifit))
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
